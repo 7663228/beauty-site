@@ -9,17 +9,24 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@ant-design/icons": "^6.1.1",
+    "@supabase/supabase-js": "^2.104.0",
+    "antd": "^6.3.6",
+    "dayjs": "^1.11.20",
     "next": "16.2.4",
     "react": "19.2.4",
     "react-dom": "19.2.4"
   },
   "devDependencies": {
+    "@playwright/test": "^1.59.1",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.2.4",
+    "lighthouse": "^13.1.0",
+    "puppeteer-core": "^24.42.0",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

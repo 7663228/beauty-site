@@ -18,6 +18,8 @@ import {
   getStatistics,
   getCategoryStats,
   getVipPackages,
+  getUserVipStatus,
+  canUserDownload,
 } from './api'
 import type {
   Celebrity,
@@ -29,6 +31,7 @@ import type {
   CollectionQueryParams,
   CommentQueryParams,
   VipPackage,
+  UserVipStatus,
 } from './types'
 
 // =============================================
@@ -86,6 +89,7 @@ export function useCelebrityCollections(celebrityId: number | null, params = {})
   const [data, setData] = useState<PhotoCollection[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [count, setCount] = useState(0)
 
   useEffect(() => {
     if (!celebrityId) {
@@ -98,13 +102,14 @@ export function useCelebrityCollections(celebrityId: number | null, params = {})
       const result = await getCelebrityCollections(celebrityId, params)
       setData(result.data)
       setError(result.error)
+      setCount(result.count)
       setLoading(false)
     }
 
     fetch()
   }, [celebrityId, JSON.stringify(params)])
 
-  return { data, loading, error }
+  return { data, loading, error, count }
 }
 
 export function useHotCelebrities(limit: number = 10) {

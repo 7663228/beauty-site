@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { Row, Col, Typography, Breadcrumb, Card, Steps, theme } from 'antd'
+import { Row, Col, Typography, Breadcrumb, Card, theme } from 'antd'
 import { 
   HomeOutlined, 
   QuestionCircleOutlined, 
@@ -14,7 +14,6 @@ import {
 import Link from 'next/link'
 
 const { Title, Text, Paragraph } = Typography
-const { Step } = Steps
 
 export default function ZhinanPage() {
   const { token } = theme.useToken()

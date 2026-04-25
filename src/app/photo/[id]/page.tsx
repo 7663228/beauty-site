@@ -41,7 +41,6 @@ import {
   useUserVipStatus,
 } from '@/lib/hooks'
 import type { CollectionDetail, RelatedCollection, CommentWithUser } from '@/lib/types'
-import { useAuth } from '@/lib/auth' // 假设有auth hook
 
 const { Title, Text, Paragraph } = Typography
 const { TextArea } = Input

@@ -12,6 +12,10 @@ import type {
   CelebrityQueryParams,
   CommentQueryParams,
   QueryParams,
+  VipPackage,
+  UserVipStatus,
+  VipOrder,
+  SinglePurchase,
 } from './types'
 
 // =============================================

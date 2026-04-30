@@ -804,16 +804,16 @@ const MOCK_FULL_COLLECTIONS: PhotoCollection[] = [
   { id: 38, celebrity_id: 3, title: '蠢沫沫 全套合集', subtitle: '蠢沫沫全部Cosplay作品', type: 'full', preview_image_count: 40, source_no: null, thumbnail_url: 'https://picsum.photos/300/400?random=1511', image_count: 800, video_count: 50, file_size: null, views_count: 88000, downloads_count: 12000, publish_date: '2025-09-13', status: 'published', created_at: '2025-09-13', updated_at: '2025-09-13' },
   { id: 34, celebrity_id: 2, title: '糯叽叽 全套合集', subtitle: '糯叽叽全部作品整合包', type: 'full', preview_image_count: 35, source_no: null, thumbnail_url: 'https://picsum.photos/300/400?random=911', image_count: 550, video_count: 35, file_size: null, views_count: 75600, downloads_count: 8900, publish_date: '2025-09-15', status: 'published', created_at: '2025-09-15', updated_at: '2025-09-15' },
   { id: 55, celebrity_id: 2, title: '糯叽叽 全套合集', subtitle: 'HUAYANG花漾 糯叽叽全部作品', type: 'full', preview_image_count: 38, source_no: null, thumbnail_url: 'https://picsum.photos/300/400?random=huay3', image_count: 550, video_count: 35, file_size: null, views_count: 123000, downloads_count: 15600, publish_date: '2025-09-15', status: 'published', created_at: '2025-09-15', updated_at: '2025-09-15' },
-  { id: 14, celebrity_id: 5, title: '陆萱萱 全套合集', subtitle: '陆萱萱全部作品整合包', type: 'full', preview_image_count: 45, source_no: null, thumbnail_url: 'http://localhost:3000/placeholder.jpg', image_count: 600, video_count: 40, file_size: null, views_count: 99000, downloads_count: 14200, publish_date: '2025-09-10', status: 'published', created_at: '2025-09-10', updated_at: '2025-09-10' },
+  { id: 14, celebrity_id: 5, title: '陆萱萱 全套合集', subtitle: '陆萱萱全部作品整合包', type: 'full', preview_image_count: 45, source_no: null, thumbnail_url: 'https://picsum.photos/300/400?random=luxuanxuan-full', image_count: 600, video_count: 40, file_size: null, views_count: 99000, downloads_count: 14200, publish_date: '2025-09-10', status: 'published', created_at: '2025-09-10', updated_at: '2025-09-10' },
   { id: 28, celebrity_id: 5, title: '陆萱萱 全套合集', subtitle: '陆萱萱全部作品整合包', type: 'full', preview_image_count: 44, source_no: null, thumbnail_url: 'https://picsum.photos/300/400?random=511', image_count: 600, video_count: 38, file_size: null, views_count: 99000, downloads_count: 13900, publish_date: '2025-09-12', status: 'published', created_at: '2025-09-12', updated_at: '2025-09-12' },
-  { id: 11, celebrity_id: 7, title: '金允希Yuki 全套合集', subtitle: null, type: 'full', preview_image_count: 30, source_no: null, thumbnail_url: 'http://tdtzfuafz.hn-bkt.clouddn.com/0001-tic.webp', image_count: 500, video_count: 20, file_size: null, views_count: 88000, downloads_count: 9800, publish_date: '2025-09-05', status: 'published', created_at: '2025-09-05', updated_at: '2025-09-05' },
-  { id: 12, celebrity_id: 6, title: '南乔 全套合集', subtitle: null, type: 'full', preview_image_count: 28, source_no: null, thumbnail_url: 'http://localhost:3000/placeholder.jpg', image_count: 450, video_count: 18, file_size: null, views_count: 77000, downloads_count: 8700, publish_date: '2025-09-03', status: 'published', created_at: '2025-09-03', updated_at: '2025-09-03' },
+  { id: 11, celebrity_id: 7, title: '金允希Yuki 全套合集', subtitle: null, type: 'full', preview_image_count: 30, source_no: null, thumbnail_url: 'https://picsum.photos/300/400?random=jinyunxi-full', image_count: 500, video_count: 20, file_size: null, views_count: 88000, downloads_count: 9800, publish_date: '2025-09-05', status: 'published', created_at: '2025-09-05', updated_at: '2025-09-05' },
+  { id: 12, celebrity_id: 6, title: '南乔 全套合集', subtitle: null, type: 'full', preview_image_count: 28, source_no: null, thumbnail_url: 'https://picsum.photos/300/400?random=nanqiao-full', image_count: 450, video_count: 18, file_size: null, views_count: 77000, downloads_count: 8700, publish_date: '2025-09-03', status: 'published', created_at: '2025-09-03', updated_at: '2025-09-03' },
   { id: 19, celebrity_id: 7, title: '金允希Yuki 全套合集', subtitle: null, type: 'full', preview_image_count: 32, source_no: null, thumbnail_url: 'https://picsum.photos/300/400?random=111', image_count: 500, video_count: 22, file_size: null, views_count: 88000, downloads_count: 10200, publish_date: '2025-09-08', status: 'published', created_at: '2025-09-08', updated_at: '2025-09-08' },
   { id: 22, celebrity_id: 6, title: '南乔 全套合集', subtitle: null, type: 'full', preview_image_count: 26, source_no: null, thumbnail_url: 'https://picsum.photos/300/400?random=212', image_count: 450, video_count: 15, file_size: null, views_count: 77000, downloads_count: 8500, publish_date: '2025-09-07', status: 'published', created_at: '2025-09-07', updated_at: '2025-09-07' },
   { id: 31, celebrity_id: 4, title: '白袜小甜 全套合集', subtitle: null, type: 'full', preview_image_count: 35, source_no: null, thumbnail_url: 'https://picsum.photos/300/400?random=611', image_count: 580, video_count: 25, file_size: null, views_count: 88000, downloads_count: 11000, publish_date: '2025-09-06', status: 'published', created_at: '2025-09-06', updated_at: '2025-09-06' },
   { id: 25, celebrity_id: 10, title: '妲己_Toxic 全套合集', subtitle: null, type: 'full', preview_image_count: 30, source_no: null, thumbnail_url: 'https://picsum.photos/300/400?random=313', image_count: 480, video_count: 20, file_size: null, views_count: 65000, downloads_count: 7200, publish_date: '2025-09-04', status: 'published', created_at: '2025-09-04', updated_at: '2025-09-04' },
-  { id: 13, celebrity_id: 10, title: '妲己_Toxic 全套合集', subtitle: null, type: 'full', preview_image_count: 28, source_no: null, thumbnail_url: 'http://localhost:3000/placeholder.jpg', image_count: 460, video_count: 18, file_size: null, views_count: 65000, downloads_count: 6800, publish_date: '2025-09-02', status: 'published', created_at: '2025-09-02', updated_at: '2025-09-02' },
-  { id: 15, celebrity_id: 5, title: '尹甜甜 全套合集', subtitle: null, type: 'full', preview_image_count: 25, source_no: null, thumbnail_url: 'http://localhost:3000/placeholder.jpg', image_count: 400, video_count: 15, file_size: null, views_count: 54000, downloads_count: 5200, publish_date: '2025-09-01', status: 'published', created_at: '2025-09-01', updated_at: '2025-09-01' },
+  { id: 13, celebrity_id: 10, title: '妲己_Toxic 全套合集', subtitle: null, type: 'full', preview_image_count: 28, source_no: null, thumbnail_url: 'https://picsum.photos/300/400?random=daji-full', image_count: 460, video_count: 18, file_size: null, views_count: 65000, downloads_count: 6800, publish_date: '2025-09-02', status: 'published', created_at: '2025-09-02', updated_at: '2025-09-02' },
+  { id: 15, celebrity_id: 5, title: '尹甜甜 全套合集', subtitle: null, type: 'full', preview_image_count: 25, source_no: null, thumbnail_url: 'https://picsum.photos/300/400?random=yintt-full', image_count: 400, video_count: 15, file_size: null, views_count: 54000, downloads_count: 5200, publish_date: '2025-09-01', status: 'published', created_at: '2025-09-01', updated_at: '2025-09-01' },
 ]
 
 /**
@@ -826,7 +826,9 @@ export async function getHotCelebrities(limit: number = 10) {
     .order('popularity_score', { ascending: false })
     .limit(limit)
 
+  console.log('[API getHotCelebrities] data:', data?.length, 'error:', error?.message)
   if (error || !data || data.length === 0) {
+    console.log('[API getHotCelebrities] Using MOCK fallback')
     return { data: MOCK_CELEBRITIES.slice(0, limit), error: null }
   }
   return { data: data as Celebrity[], error: null }
@@ -843,7 +845,9 @@ export async function getLatestCollections(limit: number = 20) {
     .order('publish_date', { ascending: false })
     .limit(limit)
 
+  console.log('[API getLatestCollections] data:', data?.length, 'error:', error?.message)
   if (error || !data || data.length === 0) {
+    console.log('[API getLatestCollections] Using MOCK fallback')
     const mixed = [...MOCK_SINGLE_COLLECTIONS, ...MOCK_FULL_COLLECTIONS]
       .sort((a, b) => new Date(b.publish_date!).getTime() - new Date(a.publish_date!).getTime())
       .slice(0, limit)
@@ -928,6 +932,8 @@ export async function getCollections(params: CollectionQueryParams = {}) {
     search,
   } = params
 
+  console.log('[getCollections] called with:', JSON.stringify({ page, pageSize, type, search, celebrityId }))
+
   let query = supabase
     .from('photo_collections')
     .select('*', { count: 'exact' })
@@ -947,7 +953,10 @@ export async function getCollections(params: CollectionQueryParams = {}) {
 
   const { data, error, count } = await query
 
+  console.log('[getCollections] raw result - data length:', data?.length, 'count:', count, 'error:', error?.message || null)
+
   if (error || !data || data.length === 0) {
+    console.log('[getCollections] Entering mock fallback')
     let mockData = type === 'single' ? MOCK_SINGLE_COLLECTIONS
                 : type === 'full' ? MOCK_FULL_COLLECTIONS
                 : [...MOCK_SINGLE_COLLECTIONS, ...MOCK_FULL_COLLECTIONS]
@@ -965,9 +974,11 @@ export async function getCollections(params: CollectionQueryParams = {}) {
 
     const totalCount = mockData.length
     const paged = mockData.slice(from, to + 1)
+    console.log('[getCollections] mock fallback - returning:', paged.length, 'items')
     return { data: paged as PhotoCollection[], error: null, count: totalCount, page, pageSize }
   }
 
+  console.log('[getCollections] returning real data:', data.length)
   return {
     data: data as PhotoCollection[],
     error: null,

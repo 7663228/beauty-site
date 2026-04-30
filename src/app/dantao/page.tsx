@@ -160,7 +160,7 @@ export default function DantaoPage() {
           <Col xs={24} lg={6}>
             <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
               <Title level={4} className="mb-4">随机推荐</Title>
-              <Space direction="vertical" className="w-full" size={[0, 8]}>
+              <Space orientation="vertical" className="w-full" size={[0, 8]}>
                 {randomRecommendations.map((item, index) => (
                   <RandomRecommend
                     key={index}

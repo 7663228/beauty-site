@@ -8,12 +8,16 @@
 export interface User {
   id: number
   username: string
+  email?: string
+  auth_id?: string
   avatar_url: string | null
   user_level: '普通用户' | 'VIP' | 'SVIP' | '管理员' | '版主'
   created_at: string
   last_login_at: string | null
   comment_count: number
   total_views: number
+  balance?: number
+  points?: number
 }
 
 // 人物表

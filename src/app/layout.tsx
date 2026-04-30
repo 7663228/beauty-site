@@ -1,15 +1,16 @@
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
+import Inter from "next/font/local";
 import "./globals.css";
 import { ConfigProvider } from "antd";
 import zhCN from 'antd/locale/zh_CN';
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { AuthProvider } from "@/lib/useAuth";
 
 const inter = Inter({
-  subsets: ["latin"],
+  src: "../../public/fonts/Inter-Latin.woff2",
   variable: "--font-inter",
-  display: 'optional',
+  display: 'swap',
 });
 
 export const metadata: Metadata = {
@@ -44,23 +45,25 @@ export default function RootLayout({
   return (
     <html lang="zh-CN" className={inter.variable}>
       <body className="min-h-screen flex flex-col bg-white dark:bg-gray-900 antialiased">
-        <ConfigProvider
-          locale={zhCN}
-          theme={{
-            token: {
-              colorPrimary: '#ec4899',
-              colorLink: '#ec4899',
-              colorLinkHover: '#db2777',
-              borderRadius: 8,
-            },
-          }}
-        >
-          <Navbar />
-          <main className="flex-1">
-            {children}
-          </main>
-          <Footer />
-        </ConfigProvider>
+        <AuthProvider>
+          <ConfigProvider
+            locale={zhCN}
+            theme={{
+              token: {
+                colorPrimary: '#ec4899',
+                colorLink: '#ec4899',
+                colorLinkHover: '#db2777',
+                borderRadius: 8,
+              },
+            }}
+          >
+            <Navbar />
+            <main className="flex-1">
+              {children}
+            </main>
+            <Footer />
+          </ConfigProvider>
+        </AuthProvider>
       </body>
     </html>
   );

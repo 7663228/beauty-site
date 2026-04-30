@@ -14,6 +14,7 @@ import {
   Card,
   message,
   Spin,
+  Divider,
 } from 'antd'
 import {
   HomeOutlined,
@@ -33,6 +34,7 @@ import {
   LockOutlined,
 } from '@ant-design/icons'
 import Link from 'next/link'
+import { supabase } from '@/lib/supabase'
 import RandomRecommend from '@/components/RandomRecommend'
 import {
   useCollectionDetail,
@@ -375,7 +377,7 @@ export default function PhotoDetailPage({ params }: PhotoDetailPageProps) {
 
             {/* Comments */}
             <Card title="发表评论">
-              <Space direction="vertical" className="w-full" size="large">
+              <Space orientation="vertical" className="w-full" size="large">
                 <TextArea
                   rows={4}
                   placeholder="请输入评论内容..."
@@ -456,11 +458,14 @@ export default function PhotoDetailPage({ params }: PhotoDetailPageProps) {
                       <DownloadResourceButton
                         key={idx}
                         resource={resource}
+                        collectionId={collectionId}
+                        collectionTitle={detail.title}
+                        price={5}
                       />
                     ))}
                   </div>
                 ) : (
-                  <VipDownloadPrompt collectionId={collectionId} />
+                  <VipDownloadPrompt collectionId={collectionId} collectionTitle={detail.title} />
                 )}
 
                 <div className="flex justify-center gap-4 text-sm text-gray-500">
@@ -531,7 +536,7 @@ export default function PhotoDetailPage({ params }: PhotoDetailPageProps) {
 
             {/* Random Recommendations */}
             <Card title="随机推荐" className="mb-6">
-              <Space direction="vertical" className="w-full" size={[0, 8]}>
+              <Space orientation="vertical" className="w-full" size={[0, 8]}>
                 {[
                   { title: '蠢沫沫 – NO.349 柜', source: 'Xiuren秀人网', date: '2024-12-01', url: '#' },
                   { title: '蠢沫沫 – NO.357 花丛婚纱', source: 'Xiuren秀人网', date: '2024-11-15', url: '#' },
@@ -658,45 +663,171 @@ interface DownloadResourceButtonProps {
     file_size: string | null
     downloads_count: number
   }
+  price?: number // 单套购买价格
+  collectionId: number
+  collectionTitle: string
 }
 
-function DownloadResourceButton({ resource }: DownloadResourceButtonProps) {
+function DownloadResourceButton({ resource, price = 5, collectionId, collectionTitle }: DownloadResourceButtonProps) {
   const [isVip, setIsVip] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [balance, setBalance] = useState(0)
+  const [userId, setUserId] = useState<number | null>(null)
+  const [purchaseModalOpen, setPurchaseModalOpen] = useState(false)
+  const [purchaseLoading, setPurchaseLoading] = useState(false)
 
-  // 模拟检查VIP状态 - 实际应该从auth context获取
+  // 检查用户VIP状态和余额
   useEffect(() => {
-    // TODO: 从用户上下文获取真实VIP状态
-    // 这里临时设为false来测试VIP提示
-    const checkVip = async () => {
-      // const user = getCurrentUser()
-      // const vipStatus = await checkUserVip(user?.id)
-      // setIsVip(vipStatus)
-      setIsVip(false) // 临时：设为非VIP用户以测试
+    const checkUserStatus = async () => {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (session?.user) {
+        // 获取用户ID
+        let uid: number | null = null
+        try {
+          const { data } = await supabase
+            .from('users')
+            .select('id, balance, user_level')
+            .eq('auth_id', session.user.id)
+            .single()
+          if (data) {
+            uid = data.id
+            setBalance(data.balance || 0)
+            setIsVip(data.user_level === 'VIP' || data.user_level === 'SVIP')
+          }
+        } catch (e) {
+          // 尝试其他方式获取
+          try {
+            const { data } = await supabase
+              .from('users')
+              .select('id, balance, user_level')
+              .eq('id', parseInt(session.user.id.replace(/-/g, '').substring(0, 8), 16))
+              .single()
+            if (data) {
+              uid = data.id
+              setBalance(data.balance || 0)
+              setIsVip(data.user_level === 'VIP' || data.user_level === 'SVIP')
+            }
+          } catch (e2) { /* ignore */ }
+        }
+        setUserId(uid)
+      }
     }
-    checkVip()
+    checkUserStatus()
   }, [])
 
   const handleDownload = async () => {
-    if (!isVip) {
-      message.warning('此资源需要VIP会员才能下载')
+    // 如果是VIP，直接下载
+    if (isVip) {
+      setLoading(true)
+      try {
+        const downloadInfo = `${resource.baidu_link}\n提取码: ${resource.extract_code}${resource.password ? `\n解压密码: ${resource.password}` : ''}`
+        await navigator.clipboard.writeText(downloadInfo)
+        message.success('下载链接已复制到剪贴板')
+      } catch (err) {
+        message.error('复制失败，请稍后重试')
+      }
+      setLoading(false)
       return
     }
 
-    setLoading(true)
+    // 非VIP用户，检查余额
+    if (balance >= price) {
+      setPurchaseModalOpen(true)
+    } else {
+      message.warning(`余额不足！当前余额 ¥${balance.toFixed(2)}，需要 ¥${price}，请先充值`)
+    }
+  }
+
+  // 确认购买
+  const handleConfirmPurchase = async () => {
+    if (!userId || balance < price) return
+    setPurchaseLoading(true)
+
     try {
-      // 复制下载链接和提取码
+      // 扣减余额
+      const newBalance = balance - price
+      await supabase
+        .from('users')
+        .update({ balance: newBalance })
+        .eq('id', userId)
+
+      // 添加余额消费记录
+      await supabase.from('balance_records').insert({
+        user_id: userId,
+        type: 'spend',
+        amount: -price,
+        balance_before: balance,
+        balance_after: newBalance,
+        description: `购买图集: ${collectionTitle}`
+      })
+
+      // 添加购买记录
+      await supabase.from('single_purchases').insert({
+        user_id: userId,
+        collection_id: collectionId,
+        amount: price,
+        payment_status: 'paid'
+      })
+
+      setBalance(newBalance)
+      setPurchaseModalOpen(false)
+
+      // 显示下载信息
       const downloadInfo = `${resource.baidu_link}\n提取码: ${resource.extract_code}${resource.password ? `\n解压密码: ${resource.password}` : ''}`
       await navigator.clipboard.writeText(downloadInfo)
-      message.success('下载链接已复制到剪贴板')
+      message.success(`购买成功！¥${price} 已扣除，下载链接已复制到剪贴板`)
     } catch (err) {
-      message.error('复制失败，请稍后重试')
+      message.error('购买失败，请稍后重试')
+      console.error('购买错误:', err)
+    } finally {
+      setPurchaseLoading(false)
     }
-    setLoading(false)
   }
 
   return (
     <div className="relative">
+      <Modal
+        title="确认购买"
+        open={purchaseModalOpen}
+        onCancel={() => setPurchaseModalOpen(false)}
+        footer={null}
+        centered
+      >
+        <div className="text-center py-4">
+          <div className="text-lg mb-4">{collectionTitle}</div>
+          <div className="bg-gray-50 p-4 rounded-lg mb-4">
+            <Row gutter={16}>
+              <Col span={12}>
+                <Text type="secondary">当前余额</Text>
+                <div className="text-xl font-bold text-green-500">¥{balance.toFixed(2)}</div>
+              </Col>
+              <Col span={12}>
+                <Text type="secondary">商品价格</Text>
+                <div className="text-xl font-bold text-pink-500">-¥{price}</div>
+              </Col>
+            </Row>
+            <Divider className="my-3" />
+            <div>
+              <Text type="secondary">购买后余额</Text>
+              <div className="text-xl font-bold">¥{(balance - price).toFixed(2)}</div>
+            </div>
+          </div>
+          <div className="text-sm text-gray-500 mb-4">
+            购买后即可获得此图集的下载链接
+          </div>
+          <Button
+            type="primary"
+            block
+            size="large"
+            loading={purchaseLoading}
+            onClick={handleConfirmPurchase}
+            className="bg-pink-500 hover:bg-pink-600 border-0"
+          >
+            确认支付 ¥{price}
+          </Button>
+        </div>
+      </Modal>
+
       <Button
         type="primary"
         size="large"
@@ -704,14 +835,17 @@ function DownloadResourceButton({ resource }: DownloadResourceButtonProps) {
         icon={isVip ? <DownloadOutlined /> : <LockOutlined />}
         loading={loading}
         onClick={handleDownload}
-        className={isVip ? '' : 'bg-gray-400 border-gray-400'}
+        className={isVip ? '' : 'bg-pink-500 hover:bg-pink-600 border-pink-500'}
       >
-        {resource.resource_name || '下载资源'}
+        {isVip ? '免费下载' : `购买下载 ¥${price}`}
       </Button>
       {!isVip && (
-        <Link href="/vip" className="block mt-1 text-xs text-pink-500 hover:text-pink-600 text-center">
-          开通VIP免费下载
-        </Link>
+        <div className="flex justify-between mt-1 text-xs">
+          <Link href="/vip" className="text-pink-500 hover:text-pink-600">
+            开通VIP免费
+          </Link>
+          <span className="text-gray-400">余额: ¥{balance.toFixed(2)}</span>
+        </div>
       )}
     </div>
   )
@@ -719,37 +853,181 @@ function DownloadResourceButton({ resource }: DownloadResourceButtonProps) {
 
 interface VipDownloadPromptProps {
   collectionId: number
+  collectionTitle: string
 }
 
-function VipDownloadPrompt({ collectionId }: VipDownloadPromptProps) {
+function VipDownloadPrompt({ collectionId, collectionTitle }: VipDownloadPromptProps) {
   const [isVip, setIsVip] = useState(false)
+  const [balance, setBalance] = useState(0)
+  const [purchaseModalOpen, setPurchaseModalOpen] = useState(false)
+  const [purchaseLoading, setPurchaseLoading] = useState(false)
+  const price = 5
 
   useEffect(() => {
-    // TODO: 从用户上下文获取真实VIP状态
-    setIsVip(false)
+    const checkUserStatus = async () => {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (session?.user) {
+        try {
+          const { data } = await supabase
+            .from('users')
+            .select('id, balance, user_level')
+            .eq('auth_id', session.user.id)
+            .single()
+          if (data) {
+            setBalance(data.balance || 0)
+            setIsVip(data.user_level === 'VIP' || data.user_level === 'SVIP')
+          }
+        } catch (e) {
+          try {
+            const { data } = await supabase
+              .from('users')
+              .select('id, balance, user_level')
+              .eq('id', parseInt(session.user.id.replace(/-/g, '').substring(0, 8), 16))
+              .single()
+            if (data) {
+              setBalance(data.balance || 0)
+              setIsVip(data.user_level === 'VIP' || data.user_level === 'SVIP')
+            }
+          } catch (e2) { /* ignore */ }
+        }
+      }
+    }
+    checkUserStatus()
   }, [collectionId])
+
+  const handleClick = () => {
+    if (isVip) {
+      message.success('VIP用户可直接下载')
+    } else if (balance >= price) {
+      setPurchaseModalOpen(true)
+    } else {
+      message.warning(`余额不足！需要 ¥${price}，当前余额 ¥${balance.toFixed(2)}，请先充值`)
+    }
+  }
+
+  const handleConfirmPurchase = async () => {
+    setPurchaseLoading(true)
+    try {
+      // 获取用户ID
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session?.user) {
+        message.warning('请先登录')
+        setPurchaseLoading(false)
+        return
+      }
+
+      let userId: number | null = null
+      try {
+        const { data } = await supabase
+          .from('users')
+          .select('id, balance, user_level')
+          .eq('auth_id', session.user.id)
+          .single()
+        if (data) {
+          userId = data.id
+        }
+      } catch (e) {
+        userId = parseInt(session.user.id.replace(/-/g, '').substring(0, 8), 16)
+      }
+
+      if (!userId) {
+        message.error('用户不存在')
+        setPurchaseLoading(false)
+        return
+      }
+
+      const newBalance = balance - price
+      await supabase
+        .from('users')
+        .update({ balance: newBalance })
+        .eq('id', userId)
+
+      await supabase.from('balance_records').insert({
+        user_id: userId,
+        type: 'spend',
+        amount: -price,
+        balance_before: balance,
+        balance_after: newBalance,
+        description: `购买图集: ${collectionTitle}`
+      })
+
+      await supabase.from('single_purchases').insert({
+        user_id: userId,
+        collection_id: collectionId,
+        amount: price,
+        payment_status: 'paid'
+      })
+
+      setBalance(newBalance)
+      setPurchaseModalOpen(false)
+      message.success(`购买成功！¥${price} 已扣除`)
+    } catch (err) {
+      message.error('购买失败，请稍后重试')
+    } finally {
+      setPurchaseLoading(false)
+    }
+  }
 
   return (
     <div>
+      <Modal
+        title="确认购买"
+        open={purchaseModalOpen}
+        onCancel={() => setPurchaseModalOpen(false)}
+        footer={null}
+        centered
+      >
+        <div className="text-center py-4">
+          <div className="text-lg mb-4">{collectionTitle}</div>
+          <div className="bg-gray-50 p-4 rounded-lg mb-4">
+            <Row gutter={16}>
+              <Col span={12}>
+                <Text type="secondary">当前余额</Text>
+                <div className="text-xl font-bold text-green-500">¥{balance.toFixed(2)}</div>
+              </Col>
+              <Col span={12}>
+                <Text type="secondary">商品价格</Text>
+                <div className="text-xl font-bold text-pink-500">-¥{price}</div>
+              </Col>
+            </Row>
+            <Divider className="my-3" />
+            <div>
+              <Text type="secondary">购买后余额</Text>
+              <div className="text-xl font-bold">¥{(balance - price).toFixed(2)}</div>
+            </div>
+          </div>
+          <div className="text-sm text-gray-500 mb-4">
+            购买后即可获得此图集的下载权限
+          </div>
+          <Button
+            type="primary"
+            block
+            size="large"
+            loading={purchaseLoading}
+            onClick={handleConfirmPurchase}
+            className="bg-pink-500 hover:bg-pink-600 border-0"
+          >
+            确认支付 ¥{price}
+          </Button>
+        </div>
+      </Modal>
+
       <Button
         type="primary"
         size="large"
         block
         icon={isVip ? <DownloadOutlined /> : <LockOutlined />}
-        className={`mb-3 ${isVip ? '' : 'bg-gray-400 border-gray-400'}`}
-        onClick={() => {
-          if (!isVip) {
-            message.warning('此资源需要VIP会员才能下载')
-          }
-        }}
+        onClick={handleClick}
+        className={isVip ? '' : 'bg-pink-500 hover:bg-pink-600 border-pink-500'}
       >
-        {isVip ? 'VIP免费下载' : 'VIP会员专享下载'}
+        {isVip ? 'VIP免费下载' : `购买下载 ¥${price}`}
       </Button>
       {!isVip && (
-        <div className="text-center">
-          <Link href="/vip" className="text-sm text-pink-500 hover:text-pink-600">
-            开通VIP，解锁全部下载链接
+        <div className="flex justify-between mt-1 text-xs">
+          <Link href="/vip" className="text-pink-500 hover:text-pink-600">
+            开通VIP免费
           </Link>
+          <span className="text-gray-400">余额: ¥{balance.toFixed(2)}</span>
         </div>
       )}
     </div>

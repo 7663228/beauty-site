@@ -1,0 +1,8 @@
+-- Thumbnail URL updates (6 collections)
+
+UPDATE photo_collections SET thumbnail_url = '//u5lmasqysgrvzej6.public.blob.vercel-storage.com/%E9%98%BF%E5%A7%A3%20NO.001%20%26icy%E7%8C%AA%20%E5%86%85%E8%B4%AD%E6%97%A0%E6%B0%B4%E5%8D%B0%20%E6%8D%86%E7%BB%91%2B%E6%BB%B4%E8%9C%A1%20%5B107P%20707MB%5D_0001.webp' WHERE id = 1;
+UPDATE photo_collections SET thumbnail_url = '//u5lmasqysgrvzej6.public.blob.vercel-storage.com/%E9%98%BF%E5%A7%A3%20NO.002%20%E5%86%85%E8%B4%AD%E6%97%A0%E6%B0%B4%E5%8D%B0%20NO.7394%20%E9%BB%91%E8%89%B2%E5%90%8A%E5%B8%A6%E7%9F%AD%E8%A3%99%20%5B73P%201.10GB%5D_0001.webp' WHERE id = 2;
+UPDATE photo_collections SET thumbnail_url = '//u5lmasqysgrvzej6.public.blob.vercel-storage.com/%E9%98%BF%E5%A7%A3%20NO.003%20%E5%86%85%E8%B4%AD%E6%97%A0%E6%B0%B4%E5%8D%B0%208477%20%E5%A4%8D%E5%87%BA%E4%B9%8B%E4%BD%9C%20%5B79P%20727MB%5D_0001.webp' WHERE id = 3;
+UPDATE photo_collections SET thumbnail_url = '//u5lmasqysgrvzej6.public.blob.vercel-storage.com/%E9%98%BF%E5%A7%A3%20NO.004%20%26%E6%9E%97%E5%B9%BC%E4%B8%80%20%E5%86%85%E8%B4%AD%E6%97%A0%E6%B0%B4%E5%8D%B0%208472%20%E9%97%BA%E8%9C%9C%E7%9A%84%E7%A7%98%E5%AF%86%20%5B77P%20784MB%5D_0001.webp' WHERE id = 4;
+UPDATE photo_collections SET thumbnail_url = '//u5lmasqysgrvzej6.public.blob.vercel-storage.com/%E9%98%BF%E5%A7%A3%20NO.005%20%E5%86%85%E8%B4%AD%E6%97%A0%E6%B0%B4%E5%8D%B0%205906%20%E5%90%8A%E5%B8%A6%E7%9F%AD%E8%A3%99%20%5B92P%201.07GB%5D_0001.webp' WHERE id = 5;
+UPDATE photo_collections SET thumbnail_url = '//u5lmasqysgrvzej6.public.blob.vercel-storage.com/%E9%98%BF%E5%A7%A3%20NO.006%20%281%29-tic.webp' WHERE id = 6;

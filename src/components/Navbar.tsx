@@ -1,8 +1,11 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import AuthModal from '@/components/AuthModal'
+import UserAvatarDropdown from '@/components/UserAvatarDropdown'
+import { useAuth } from '@/lib/useAuth'
 
 interface SubMenuItem {
   label: string
@@ -75,6 +78,21 @@ export default function Navbar({ onSearch, onTypeChange }: NavbarProps) {
   const [searchValue, setSearchValue] = useState('')
   const [hoveredItem, setHoveredItem] = useState<string | null>(null)
   const [searchType, setSearchType] = useState<'single' | 'full'>('single')
+  const [authModalOpen, setAuthModalOpen] = useState(false)
+  const [authModalTab, setAuthModalTab] = useState<'login' | 'register' | 'forgot'>('login')
+  const { user } = useAuth()
+
+  // Lock body scroll when mobile menu is open
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+    }
+    return () => {
+      document.body.style.overflow = ''
+    }
+  }, [mobileMenuOpen])
 
   const handleSearch = () => {
     if (searchValue.trim()) {
@@ -141,9 +159,31 @@ export default function Navbar({ onSearch, onTypeChange }: NavbarProps) {
         </nav>
 
         <div id="login-reg" className="auth-buttons">
-          <Link href="/user" className="btn btn-login">登录</Link>
-          <Link href="/user" className="btn btn-reg">注册</Link>
+          {user ? (
+            <UserAvatarDropdown />
+          ) : (
+            <>
+              <button
+                onClick={() => { setAuthModalTab('login'); setAuthModalOpen(true) }}
+                className="btn btn-login"
+              >
+                登录
+              </button>
+              <button
+                onClick={() => { console.log('[Navbar] Register button clicked'); setAuthModalTab('register'); setAuthModalOpen(true) }}
+                className="btn btn-reg"
+              >
+                注册
+              </button>
+            </>
+          )}
         </div>
+
+        <AuthModal
+          open={authModalOpen}
+          onClose={() => setAuthModalOpen(false)}
+          initialTab={authModalTab}
+        />
 
         <button
           className="search-trigger"
@@ -162,7 +202,11 @@ export default function Navbar({ onSearch, onTypeChange }: NavbarProps) {
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           aria-label="菜单"
         >
-          <i className="fa fa-bars" />
+          <span className="hamburger">
+            <span></span>
+            <span></span>
+            <span></span>
+          </span>
         </button>
       </div>
 
@@ -209,41 +253,108 @@ export default function Navbar({ onSearch, onTypeChange }: NavbarProps) {
       </div>
 
       {mobileMenuOpen && (
-        <div className="mobile-menu">
-          <nav>
-            <ul className="mobile-nav-list">
-              {navItems.map((item) => (
-                <li key={item.label} className={`mobile-nav-item ${isActive(item) ? 'active' : ''}`}>
-                  <Link
-                    href={item.href}
-                    className={`mobile-nav-link ${isActive(item) ? 'active' : ''}`}
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    {item.label}
-                    {item.badge && (
-                      <span className="mobile-badge">{item.badge}</span>
-                    )}
+        <>
+          {/* Backdrop overlay */}
+          <div
+            className="mobile-backdrop"
+            onClick={() => setMobileMenuOpen(false)}
+            aria-hidden="true"
+          />
+          {/* Left drawer menu */}
+          <div className="mobile-drawer">
+            {/* Drawer header */}
+            <div className="drawer-header">
+              <div className="drawer-user">
+                {user ? (
+                  <Link href="/user" className="drawer-user-link" onClick={() => setMobileMenuOpen(false)}>
+                    <img
+                      src={user.avatar_url || 'https://api.dicebear.com/7.x/avataaars/svg?seed=user'}
+                      alt={user.username || '用户'}
+                      className="drawer-avatar"
+                    />
+                    <div className="drawer-user-info">
+                      <span className="drawer-username">{user.username || '用户'}</span>
+                      <span className="drawer-userlevel">个人中心</span>
+                    </div>
                   </Link>
-                  {item.submenu && (
-                    <ul className="mobile-submenu">
-                      {item.submenu.map((sub) => (
-                        <li key={sub.label}>
-                          <Link
-                            href={sub.href}
-                            className="mobile-submenu-link"
-                            onClick={() => setMobileMenuOpen(false)}
-                          >
-                            {sub.label}
-                          </Link>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </li>
-              ))}
-            </ul>
-          </nav>
-        </div>
+                ) : (
+                  <div className="drawer-auth-btns">
+                    <button
+                      onClick={() => { setAuthModalTab('login'); setAuthModalOpen(true) }}
+                      className="drawer-auth-btn drawer-auth-login"
+                    >
+                      登录
+                    </button>
+                    <button
+                      onClick={() => { setAuthModalTab('register'); setAuthModalOpen(true) }}
+                      className="drawer-auth-btn drawer-auth-reg"
+                    >
+                      注册
+                    </button>
+                  </div>
+                )}
+              </div>
+              <button
+                className="drawer-close"
+                onClick={() => setMobileMenuOpen(false)}
+                aria-label="关闭菜单"
+              >
+                <i className="fa fa-times" />
+              </button>
+            </div>
+
+            {/* Nav list */}
+            <nav className="drawer-nav">
+              <ul className="drawer-nav-list">
+                {navItems.map((item) => (
+                  <li key={item.label} className={`drawer-nav-item ${isActive(item) ? 'active' : ''}`}>
+                    <Link
+                      href={item.href}
+                      className={`drawer-nav-link ${isActive(item) ? 'active' : ''}`}
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <span className="drawer-nav-text">{item.label}</span>
+                      {item.badge && (
+                        <span className="drawer-badge">{item.badge}</span>
+                      )}
+                    </Link>
+                    {item.submenu && (
+                      <ul className="drawer-submenu">
+                        {item.submenu.map((sub) => (
+                          <li key={sub.label}>
+                            <Link
+                              href={sub.href}
+                              className="drawer-submenu-link"
+                              onClick={() => setMobileMenuOpen(false)}
+                            >
+                              {sub.label}
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </nav>
+
+            {/* Drawer footer */}
+            <div className="drawer-footer">
+              <div className="drawer-footer-contact">
+                <span className="drawer-footer-label">客服微信</span>
+                <span className="drawer-footer-value">i-king88</span>
+              </div>
+              <div className="drawer-footer-links">
+                <Link href="/vip/" className="drawer-footer-link" onClick={() => setMobileMenuOpen(false)}>
+                  <i className="fa fa-diamond" /> VIP会员
+                </Link>
+                <Link href="/5840270.html/" className="drawer-footer-link" onClick={() => setMobileMenuOpen(false)}>
+                  <i className="fa fa-question-circle" /> 解压说明
+                </Link>
+              </div>
+            </div>
+          </div>
+        </>
       )}
     </header>
   )

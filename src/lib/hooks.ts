@@ -156,37 +156,32 @@ export function useCollections(params: CollectionQueryParams = {}) {
   const currentKey = getCacheKey(params)
 
   const fetch = useCallback(async (key: string, p: CollectionQueryParams) => {
-    setLoading(true)
+    const prevLoading = !collectionsCache.has(key)
+    if (prevLoading) setLoading(true)
     setError(null)
     const result = await getCollections(p)
+    console.log('[useCollections] getCollections result:', result.data?.length, 'error:', result.error, 'sample:', result.data?.[0])
     const cached = { data: result.data || [], count: result.count || 0 }
     collectionsCache.set(key, cached)
-    // Evict oldest if over limit
     if (collectionsCache.size > MAX_CACHE_SIZE) {
       const firstKey = collectionsCache.keys().next().value
       if (firstKey) collectionsCache.delete(firstKey)
     }
-    // Only update state if params haven't changed (prevents stale updates on unmount)
-    if (paramsRef.current === key) {
-      setData(cached.data)
-      setCount(cached.count)
-      setError(result.error || null)
-      setLoading(false)
-    }
+    setData(cached.data)
+    setCount(cached.count)
+    setError(result.error || null)
+    if (prevLoading) setLoading(false)
   }, [])
 
   useEffect(() => {
-    // Re-run only when params actually change
-    if (currentKey !== paramsRef.current) {
+    const cached = collectionsCache.get(currentKey)
+    if (cached) {
+      setData(cached.data)
+      setCount(cached.count)
+      setLoading(false)
+    } else {
       paramsRef.current = currentKey
-      const cached = collectionsCache.get(currentKey)
-      if (cached) {
-        setData(cached.data)
-        setCount(cached.count)
-        setLoading(false)
-      } else {
-        fetch(currentKey, params)
-      }
+      fetch(currentKey, params)
     }
   }, [currentKey, params, fetch])
 

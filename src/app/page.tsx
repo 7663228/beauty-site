@@ -115,6 +115,11 @@ export default function HomePage() {
   const { data: celebrities, loading: loadingCelebrities } = useHotCelebrities(8)
   const { data: fullCollections, loading: loadingFull } = useFullCollections(1, 6)
 
+  console.log('[DEBUG] latestCollections:', latestCollections?.length, latestCollections?.slice(0,2))
+  console.log('[DEBUG] hotCollections:', hotCollections?.length, hotCollections?.slice(0,2))
+  console.log('[DEBUG] celebrities:', celebrities?.length)
+  console.log('[DEBUG] fullCollections:', fullCollections?.length, fullCollections?.slice(0,2))
+
   const loading = loadingLatest || loadingHot || loadingCelebrities || loadingFull
 
   return (
@@ -251,7 +256,7 @@ export default function HomePage() {
           </Col>
           <Col xs={24} lg={8}>
             <Card title="随机推荐" className="h-full">
-              <Space direction="vertical" className="w-full" size={[0, 8]}>
+              <Space orientation="vertical" className="w-full" size={[0, 8]}>
                 {randomRecommendations.map((item, index) => (
                   <RandomRecommend
                     key={index}

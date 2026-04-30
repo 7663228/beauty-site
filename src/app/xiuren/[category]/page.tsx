@@ -1,8 +1,8 @@
 'use client'
 
 import React, { useState, use } from 'react'
-import { Row, Col, Typography, Breadcrumb, Spin, Pagination } from 'antd'
-import { HomeOutlined, SearchOutlined, PictureOutlined, LoadingOutlined } from '@ant-design/icons'
+import { Row, Col, Typography, Breadcrumb, Spin, Pagination, Drawer } from 'antd'
+import { HomeOutlined, SearchOutlined, PictureOutlined, LoadingOutlined, FilterOutlined, CloseOutlined } from '@ant-design/icons'
 import Link from 'next/link'
 import PhotoCard from '@/components/PhotoCard'
 import { CardGridSkeleton, SidebarSkeleton } from '@/components/Skeleton'
@@ -152,6 +152,7 @@ export default function XiurenCategoryPage({ params }: CategoryPageProps) {
   const [page, setPage] = useState(1)
   const [searchQuery, setSearchQuery] = useState('')
   const [searchType, setSearchType] = useState<'single' | 'full'>('single')
+  const [filterDrawerOpen, setFilterDrawerOpen] = useState(false)
 
   // Get collections - pass type filter to API
   const { data: collections, loading: loadingCollections, count } = useCollections({
@@ -160,6 +161,8 @@ export default function XiurenCategoryPage({ params }: CategoryPageProps) {
     search: searchQuery || undefined,
     type: searchType,
   })
+
+  console.log('[xiuren/xiuren] collections count:', collections.length, 'loading:', loadingCollections, 'sample:', collections[0])
 
   // Calculate derived state
   const isMainCategory = MAIN_CATEGORIES.includes(categorySlug)
@@ -220,10 +223,65 @@ export default function XiurenCategoryPage({ params }: CategoryPageProps) {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="max-w-7xl mx-auto px-4 pt-24 pb-8">
+        {/* Fixed Header - Type Toggle + Search */}
+        <div className="fixed top-14 left-1/2 -translate-x-1/2 z-50 bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm shadow-md rounded-lg max-w-6xl w-[calc(100%-2rem)]">
+          <div className="px-4 pt-4 pb-3 border-b border-gray-100 dark:border-gray-700">
+            <div className="flex items-center gap-3 flex-wrap">
+              <div className="page-type-toggle">
+                <button
+                  className={`page-type-btn ${searchType === 'single' ? 'active' : ''}`}
+                  onClick={() => { setSearchType('single'); setPage(1); }}
+                >
+                  单套
+                </button>
+                <button
+                  className={`page-type-btn ${searchType === 'full' ? 'active' : ''}`}
+                  onClick={() => { setSearchType('full'); setPage(1); }}
+                >
+                  全套
+                </button>
+              </div>
+              <span className="px-3 py-1 bg-gradient-to-r from-pink-500 to-rose-600 text-white text-xs font-semibold rounded">
+                精选
+              </span>
+              <h2 className="m-0 text-base font-semibold text-gray-800 dark:text-white">
+                {pageTitle} 全模特终极合集
+              </h2>
+              <Text className="text-gray-500 text-[13px]">殿堂级资源库</Text>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 px-4 py-3">
+            <div className="relative flex-1 sm:flex-none sm:w-64">
+              <input
+                type="search"
+                placeholder={`搜索${pageTitle}...`}
+                className="w-full h-8 px-3 pl-8 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 focus:outline-none focus:border-pink-500 focus:ring-1 focus:ring-pink-500"
+                onChange={(e) => {
+                  if (!e.target.value) handleSearch('')
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    const value = (e.target as HTMLInputElement).value
+                    if (value) handleSearch(value)
+                  }
+                }}
+              />
+              <SearchOutlined className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm" />
+            </div>
+            <button
+              className="sm:hidden flex items-center justify-center w-8 h-8 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md"
+              onClick={() => setFilterDrawerOpen(true)}
+              title="筛选机构"
+            >
+              <FilterOutlined className="text-gray-600 dark:text-gray-300" />
+            </button>
+          </div>
+        </div>
+
         <Row gutter={24}>
-          {/* Left Sidebar */}
-          <Col xs={24} lg={5}>
+          {/* Left Sidebar - Hidden on mobile */}
+          <Col xs={0} lg={5}>
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm sticky top-24 border border-gray-200 dark:border-gray-700">
               <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-pink-500 to-rose-600 shrink-0">
                 <h3 className="m-0 text-sm font-semibold text-white">{mainCategoryData.name}</h3>
@@ -240,15 +298,16 @@ export default function XiurenCategoryPage({ params }: CategoryPageProps) {
               </div>
 
               <div className="border-b border-gray-200 dark:border-gray-700">
+                <div className="grid grid-cols-3 gap-0">
                 {mainCategoryData.subcategories.map((cat) => (
                   <Link
                     key={cat.slug}
                     href={cat.href}
                     className={`
-                      block px-4 py-2.5 text-[13px] no-underline transition-colors
-                      border-b border-gray-100 dark:border-gray-700
+                      block px-2 py-2.5 text-[11px] no-underline transition-colors text-center
+                      border-b border-r border-gray-100 dark:border-gray-700 last:border-r-0
                       ${categorySlug === cat.slug
-                        ? '!bg-pink-100 dark:!bg-pink-900/40 text-pink-600 dark:text-pink-300 font-semibold border-l-[3px] border-l-pink-500'
+                        ? '!bg-pink-100 dark:!bg-pink-900/40 text-pink-600 dark:text-pink-300 font-semibold border-b-pink-500'
                         : 'text-gray-600 dark:text-gray-300 hover:bg-pink-50 dark:hover:bg-pink-900/20 hover:text-pink-600 dark:hover:text-pink-400'
                       }
                     `}
@@ -256,6 +315,7 @@ export default function XiurenCategoryPage({ params }: CategoryPageProps) {
                     {cat.name}
                   </Link>
                 ))}
+                </div>
               </div>
 
               <div className="px-4 py-3 bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 shrink-0">
@@ -268,85 +328,28 @@ export default function XiurenCategoryPage({ params }: CategoryPageProps) {
 
           {/* Right Content */}
           <Col xs={24} lg={19}>
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 mb-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  <div className="page-type-toggle">
-                    <button
-                      className={`page-type-btn ${searchType === 'single' ? 'active' : ''}`}
-                      onClick={() => { setSearchType('single'); setPage(1); }}
-                    >
-                      单套
-                    </button>
-                    <button
-                      className={`page-type-btn ${searchType === 'full' ? 'active' : ''}`}
-                      onClick={() => { setSearchType('full'); setPage(1); }}
-                    >
-                      全套
-                    </button>
-                  </div>
-                  <span className="px-3 py-1 bg-gradient-to-r from-pink-500 to-rose-600 text-white text-xs font-semibold rounded">
-                    精选
-                  </span>
-                  <h2 className="m-0 text-base font-semibold text-gray-800 dark:text-white">
-                    {pageTitle} 全模特终极合集
-                  </h2>
-                  <Text className="text-gray-500 text-[13px]">殿堂级资源库</Text>
-                </div>
-                <div className="relative">
-                  <input
-                    type="search"
-                    placeholder={`搜索${pageTitle}...`}
-                    className="w-64 h-8 px-3 pl-8 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 focus:outline-none focus:border-pink-500 focus:ring-1 focus:ring-pink-500"
-                    onChange={(e) => {
-                      if (!e.target.value) handleSearch('')
-                    }}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        const value = (e.target as HTMLInputElement).value
-                        if (value) handleSearch(value)
-                      }
-                    }}
-                  />
-                  <SearchOutlined className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm" />
-                </div>
-              </div>
-            </div>
-
+            <Row gutter={[16, 16]}>
             {/* Photo Grid */}
             {loadingCollections ? (
-              <Row gutter={[16, 16]}>
+              <>
                 <CardGridSkeleton count={12} type="photo" />
-              </Row>
+              </>
             ) : filteredCollections.length > 0 ? (
               <>
-                <Row gutter={[16, 16]}>
-                  {filteredCollections.map((item: PhotoCollection) => (
-                    <Col key={item.id} xs={12} sm={12} md={8} lg={6}>
-                      <PhotoCard
-                        id={String(item.id)}
-                        title={item.title}
-                        subtitle={item.subtitle || undefined}
-                        thumbnail={item.thumbnail_url || 'https://picsum.photos/300/400?random=default'}
-                        count={item.image_count}
-                        videos={item.video_count}
-                        size={item.file_size || undefined}
-                        showDetails={true}
-                      />
-                    </Col>
-                  ))}
-                </Row>
-
-                <div className="text-center mt-8">
-                  <Pagination
-                    current={page}
-                    pageSize={PAGE_SIZE}
-                    total={count || filteredCollections.length}
-                    onChange={setPage}
-                    showSizeChanger={false}
-                    showTotal={(total) => `共 ${total} 条`}
-                  />
-                </div>
+                {filteredCollections.map((item: PhotoCollection) => (
+                  <Col key={item.id} xs={12} sm={12} md={8} lg={6}>
+                    <PhotoCard
+                      id={String(item.id)}
+                      title={item.title}
+                      subtitle={item.subtitle || undefined}
+                      thumbnail={item.thumbnail_url || 'https://picsum.photos/300/400?random=default'}
+                      count={item.image_count}
+                      videos={item.video_count}
+                      size={item.file_size || undefined}
+                      showDetails={true}
+                    />
+                  </Col>
+                ))}
               </>
             ) : (
               <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-lg">
@@ -358,6 +361,18 @@ export default function XiurenCategoryPage({ params }: CategoryPageProps) {
                 </p>
               </div>
             )}
+            </Row>
+
+            <div className="text-center mt-8">
+              <Pagination
+                current={page}
+                pageSize={PAGE_SIZE}
+                total={count || filteredCollections.length}
+                onChange={setPage}
+                showSizeChanger={false}
+                showTotal={(total) => `共 ${total} 条`}
+              />
+            </div>
 
             <div className="mt-8 p-4 bg-white dark:bg-gray-800 rounded-lg">
               <div className="flex items-center justify-center">
@@ -369,6 +384,60 @@ export default function XiurenCategoryPage({ params }: CategoryPageProps) {
           </Col>
         </Row>
       </div>
+
+      {/* Mobile Filter Drawer */}
+      <Drawer
+        title={
+          <div className="flex items-center justify-between">
+            <span className="font-semibold">{mainCategoryData.name}</span>
+            <CloseOutlined onClick={() => setFilterDrawerOpen(false)} className="cursor-pointer" />
+          </div>
+        }
+        placement="left"
+        onClose={() => setFilterDrawerOpen(false)}
+        open={filterDrawerOpen}
+        width={300}
+        className="filter-drawer"
+        styles={{
+          wrapper: {
+            transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+          },
+          body: {
+            padding: '16px',
+          },
+        }}
+        motion={{
+          enter: {
+            opacity: [0, 1],
+            transform: [{ x: [-300, 0] }],
+            transition: { duration: 0.3, ease: [0.4, 0, 0.2, 1] },
+          },
+          leave: {
+            opacity: [1, 0],
+            transform: [{ x: [0, -300] }],
+            transition: { duration: 0.25, ease: [0.4, 0, 0.2, 1] },
+          },
+        }}
+      >
+        <div className="grid grid-cols-3 gap-2">
+          {mainCategoryData.subcategories.map((cat) => (
+            <Link
+              key={cat.slug}
+              href={cat.href}
+              className={`
+                block px-2 py-2.5 text-[11px] no-underline transition-colors text-center rounded
+                ${categorySlug === cat.slug
+                  ? '!bg-pink-500 text-white font-semibold'
+                  : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-pink-100 dark:hover:bg-pink-900/40 hover:text-pink-600'
+                }
+              `}
+              onClick={() => setFilterDrawerOpen(false)}
+            >
+              {cat.name}
+            </Link>
+          ))}
+        </div>
+      </Drawer>
     </div>
   )
 }
